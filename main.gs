@@ -708,7 +708,7 @@ loadGSTemplate = function () {
         throw "エラー: メッセージシートを作れませんでした";
       } else {
         var now = DateUtils.now();
-        this.sheet.getRange("A1:N2").setValues([
+        this.sheet.getRange("A1:P2").setValues([
           [
             "出勤", "出勤更新", "退勤", "退勤更新", "休憩", "休暇", "休暇取消",
             "出勤中", "出勤なし", "休暇中", "休暇なし", "出勤確認", "退勤確認",
@@ -933,8 +933,31 @@ var init = function () {
 
 // SlackのOutgoingから来るメッセージ
 function doPost(e) {
-  var miyamoto = init();
-  miyamoto.receiver.receiveMessage(e.parameters);
+  if (e.parameters.user_name == undefined) { // data is undefined (Slack Event)
+    var postJSON = JSON.parse(e.postData.getDataAsString());
+    // verification Slack Event
+    if (postJSON.type == 'url_verification'){
+      var out = ContentService.createTextOutput();
+      //Mime TypeをJSONに設定
+      out.setMimeType(ContentService.MimeType.TEXT);
+      //JSONテキストをセットする
+      out.setContent(postJSON.challenge);
+      return out;
+    }else if (postJSON.event.subtype != 'bot_message') {
+      var miyamoto = init();
+      var userid = String(postJSON.event.user);
+      var body = String(postJSON.event.text);
+      var token = new GASProperties().get('SLACK_OAUTH_TOKEN');
+      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?token=' + token + '&user=' + userid);
+      var userdata = JSON.parse(ret);
+      miyamoto.receiver.receiveMessage(userdata.user.name, body);
+    }
+  }else{ // data is defined (Outgoing web hook)
+    var miyamoto = init();
+    var username = String(e.parameters.user_name);
+    var body = String(e.parameters['text']);
+    miyamoto.receiver.receiveMessage(username, body);
+  }
 }
 
 // Time-based triggerで実行
@@ -1067,10 +1090,7 @@ loadSlack = function () {
   _.extend(Slack.prototype, EventListener.prototype);
 
   // 受信したメッセージをtimesheetsに投げる
-  Slack.prototype.receiveMessage = function(message) {
-    var username = String(message.user_name);
-    var body = String(message['text']);
-
+  Slack.prototype.receiveMessage = function(username, body) {
     // 特定のアカウントには反応しない
     var ignore_users = (this.settings.get("無視するユーザ") || '').toLowerCase().replace(/^\s*(.*?)\s*$/, "$1").split(/\s*,\s*/);
     if(_.contains(ignore_users, username.toLowerCase())) return;

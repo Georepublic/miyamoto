@@ -75,10 +75,24 @@ After that, you have to run `setUp` function once. It will create a Google Sprea
 
 Go to Slack and add new integrations. (If you don't have a parmission, please ask.)
 
-### Outgoing WebHooks
+### Event Subscribe
 
-1. Select your test channel 
-2. Paste `Current web app URL` from the Apps Script into URL(s) field.
+(Outgoing Webhook is obsolated, so latest script uses Event Subscribe)
+
+1. Go to Event Subscriptions of your App.
+2. Paste `Current web app URL` from the Apps Script into Request URL.
+3. Add scope a `message.groups` for a private group, `message.channels` for a public channel.
+
+![](docs/images/2020-11-18-23-59-05.png)
+
+### Set Oauth token
+
+1. Goto OAuth & Permissions page
+2. Copy `Bot User OAuth Access Token`
+3. Open your Googl Apps Script and show `File -> Project Property`
+4. Set copied access token as `SLACK_OAUTH_TOKEN`
+
+![](docs/images/2020-11-19-00-05-05.png)
 
 ### Incoming WebHooks
 

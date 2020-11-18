@@ -13,10 +13,7 @@ loadSlack = function () {
   _.extend(Slack.prototype, EventListener.prototype);
 
   // 受信したメッセージをtimesheetsに投げる
-  Slack.prototype.receiveMessage = function(message) {
-    var username = String(message.user_name);
-    var body = String(message['text']);
-
+  Slack.prototype.receiveMessage = function(username, body) {
     // 特定のアカウントには反応しない
     var ignore_users = (this.settings.get("無視するユーザ") || '').toLowerCase().replace(/^\s*(.*?)\s*$/, "$1").split(/\s*,\s*/);
     if(_.contains(ignore_users, username.toLowerCase())) return;

@@ -44,8 +44,31 @@ var init = function () {
 
 // SlackのOutgoingから来るメッセージ
 function doPost(e) {
-  var miyamoto = init();
-  miyamoto.receiver.receiveMessage(e.parameters);
+  if (e.parameters.user_name == undefined) { // data is undefined (Slack Event)
+    var postJSON = JSON.parse(e.postData.getDataAsString());
+    // verification Slack Event
+    if (postJSON.type == 'url_verification'){
+      var out = ContentService.createTextOutput();
+      //Mime TypeをJSONに設定
+      out.setMimeType(ContentService.MimeType.TEXT);
+      //JSONテキストをセットする
+      out.setContent(postJSON.challenge);
+      return out;
+    }else if (postJSON.event.subtype != 'bot_message') {
+      var miyamoto = init();
+      var userid = String(postJSON.event.user);
+      var body = String(postJSON.event.text);
+      var token = new GASProperties().get('SLACK_OAUTH_TOKEN');
+      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?token=' + token + '&user=' + userid);
+      var userdata = JSON.parse(ret);
+      miyamoto.receiver.receiveMessage(userdata.user.name, body);
+    }
+  }else{ // data is defined (Outgoing web hook)
+    var miyamoto = init();
+    var username = String(e.parameters.user_name);
+    var body = String(e.parameters['text']);
+    miyamoto.receiver.receiveMessage(username, body);
+  }
 }
 
 // Time-based triggerで実行
