@@ -13,7 +13,7 @@ loadGSTemplate = function () {
         throw "エラー: メッセージシートを作れませんでした";
       } else {
         var now = DateUtils.now();
-        this.sheet.getRange("A1:N2").setValues([
+        this.sheet.getRange("A1:P2").setValues([
           [
             "出勤", "出勤更新", "退勤", "退勤更新", "休憩", "休暇", "休暇取消",
             "出勤中", "出勤なし", "休暇中", "休暇なし", "出勤確認", "退勤確認",
