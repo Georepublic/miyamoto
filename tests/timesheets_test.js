@@ -120,41 +120,77 @@ QUnit.test( "Timesheets", function(assert) {
     msgTest('test1', 'おはよう 4:56', [['出勤更新', 'test1', "2014/01/02 04:56"]]);
   });
 
-  // 退勤
-  storageTest({}, function(msgTest) {
+  // 退勤 (5時間未満)
+  var test1 = {};
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,10,0,0), signOut: '-' };
+  storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', 'おつ', [['退勤', 'test1', "2014/01/02 12:34"]]);
+  });
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,10,0,0), signOut: '-' };
+  storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', 'お疲れさま 14:56', [['退勤', 'test1', "2014/01/02 14:56"]]);
+  });
+
+  // 退勤 (5時間以上)
+  var test1 = {};
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,7,0,0) };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', 'おつ', [['退勤と休憩', 'test1', "2014/01/02 12:34"]]);
+  });
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,7,0,0) };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', 'お疲れさま 14:56', [['退勤と休憩', 'test1', "2014/01/02 14:56"]]);
+  });
+
+  // 退勤 (過去日時)
+  var test1 = {};
+  var pastDateStr = String(DateUtils.toDate(new Date(2013,11,3,12,0,0)))
+  test1[pastDateStr] = { user: 'test1', signIn: new Date(2013,11,3,12,0,0) };
+  storageTest({'test1': test1}, function(msgTest) {
+    // 5時間未満
     msgTest('test1', 'お疲れさま 16:23 12/3', [['退勤', 'test1', "2013/12/03 16:23"]]);
   });
+  test1[pastDateStr] = { user: 'test1', signIn: new Date(2013,11,3,12,0,0) };
+  storageTest({'test1': test1}, function(msgTest) {
+    // 5時間以上
+    msgTest('test1', 'お疲れさま 17:23 12/3', [['退勤と休憩', 'test1', "2013/12/03 17:23"]]);
+  });
 
-  // 退勤時間の変更
+  // 退勤時間の変更 (5時間未満)
   var test1 = {};
-  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,0,0,0), signOut: new Date(2014,0,2,12,0,0) };
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,10,0,0), signOut: new Date(2014,0,2,12,0,0) };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', 'おつ', []);
     msgTest('test1', 'お疲れさま 14:56', [['退勤更新', 'test1', "2014/01/02 14:56"]]);
   });
 
-  // 退勤時間の変更
+  // 退勤時間の変更 (5時間以上)
   var test1 = {};
-  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,0,0,0), signOut: new Date(2014,0,2,12,0,0) };
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,9,0,0), signOut: new Date(2014,0,2,12,0,0) };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', 'おつ', []);
-    msgTest('test1', 'お疲れさま 14:56', [['退勤更新', 'test1', "2014/01/02 14:56"]]);
+    msgTest('test1', 'お疲れさま 14:56', [['退勤更新と休憩', 'test1', "2014/01/02 14:56"]]);
   });
 
   // 休憩時間(出勤前)
   var test1 = {};
-  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,0,0,0), signOut: new Date(2014,0,2,12,0,0) };
+  test1[nowDateStr()] = { user: 'test1', signIn: '-', signOut: '-' };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', '休憩 30分', [['休憩エラー', 'test1', ""]]);
+  });
+
+  // 休憩時間(稼働中)
+  test1 = {};
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,5,0,0), signOut: '-' };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', '休憩 30分', [['休憩', 'test1', "30分"]]);
   });
 
-  // 休憩時間(出勤後)
+  // 休憩時間(退勤後)
   test1 = {};
-  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,0,0,0), signOut: new Date(2014,0,2,12,0,0) };
-  storageTest({}, function(msgTest) {
-    msgTest('test1', '休憩 30分', [['休憩エラー', 'test1']]);
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,5,0,0), signOut: new Date(2014,0,2,12,0,0) };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', '休憩 30分', [['休憩', 'test1', "30分"]]);
   });
 
   // 休暇申請
@@ -167,7 +203,7 @@ QUnit.test( "Timesheets", function(assert) {
 
   // 休暇取消
   var test1 = {};
-  test1[nowDateStr()] = { user: 'test1', signIn: '-', singOut: '-' };
+  test1[nowDateStr()] = { user: 'test1', signIn: '-', signOut: '-' };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', 'お休みしません', []);
     msgTest('test1', '今日はお休みしません', [['休暇取消', 'test1', "2014/01/02"]]);
