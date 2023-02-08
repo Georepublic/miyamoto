@@ -1,7 +1,7 @@
 // node-qunitを使ったtestrunner
 //
 
-var runner = require("./node_modules/qunit");
+var runner = require("./node_modules/node-qunit");
 runner.setup({
   log: {
     assertions: true,
