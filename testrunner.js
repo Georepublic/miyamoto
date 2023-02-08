@@ -8,7 +8,8 @@ runner.setup({
     summary: true,
     coverage: true,
     errors: true
-  }
+  },
+  maxBlockDuration: 600000 // 10 minutes blockable for debug (default: 2000ms)
 });
 
 runner.run([
