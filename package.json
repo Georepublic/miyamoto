@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "gas-manager": "^0.4.3",
-    "qunit": "^0.7.5"
+    "gas-manager": "^0.4.3"
+  },
+  "devDependencies": {
+    "node-qunit": "^2.0.0"
   }
 }
