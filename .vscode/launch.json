@@ -5,13 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "name": "Run test",
+            "program": "${workspaceFolder}/testrunner.js",
             "request": "launch",
-            "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/testrunner.js"
+            "type": "node",
+        },
+        {
+            // cat scripts/*.js | sed -e "s/::VERSION::/`head VERSION`/g" >> main.gs
+            "name": "Run gas upload dev",
+            "program": "${workspaceFolder}/node_modules/gas-manager/bin/gas",
+            "args": [
+                "upload",
+                "-c",
+                "./gas-config.json",
+                "-s",
+                "./gas-project-dev.json"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
         }
     ]
 }
