@@ -19,7 +19,7 @@ loadTimesheets = function (exports) {
     this.date = DateUtils.parseDate(message);
     this.time = DateUtils.parseTime(message);
     this.minutes = DateUtils.parseMinutes(message)
-    this.datetime = DateUtils.normalizeDateTime(this.date, this.time);
+    this.datetime = DateUtils.normalizeDateTime(this.date, this.time, this.minutes);
     if (this.datetime !== null) {
       this.dateStr = DateUtils.format("Y/m/d", this.datetime);
       this.datetimeStr = DateUtils.format("Y/m/d H:M", this.datetime);
