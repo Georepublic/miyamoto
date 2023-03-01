@@ -16,7 +16,7 @@ loadGSTimesheets = function () {
         { name: 'ノート' },
       ],
       properties: [
-        { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。アカウント停止のためには「全部」と入れてください。'},
+        { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。'},
       ]
     };
   };
