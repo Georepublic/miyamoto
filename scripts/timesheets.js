@@ -40,7 +40,7 @@ loadTimesheets = function (exports) {
 
     // メッセージを元にメソッドを探す
     // メッセージから一時的に絵文字を削除
-    var emojiRemovedMessage = message.replaceAll(/:[^:\s]*(?:::[^:\s]*)*:/g, '')
+    var emojiRemovedMessage = message.replace(/:[^:\s]*(?:::[^:\s]*)*:/g, '');
     var command = _.find(commands, function (ary) {
       return (ary && emojiRemovedMessage.match(ary[1]));
     });
