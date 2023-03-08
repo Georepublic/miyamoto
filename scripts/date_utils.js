@@ -138,11 +138,19 @@ loadDateUtils = function () {
     return null;
   };
 
-  // 日付と時間の配列から、Dateオブジェクトを生成
-  DateUtils.normalizeDateTime = function(date, time) {
+  // 日付と時間の配列から、Dateオブジェクトを生成 (休憩時間も考慮)
+  DateUtils.normalizeDateTime = function(date, time, minutes) {
     // 時間だけの場合は日付を補完する
     if(date) {
-      if(!time) date = null;
+      // 日付だけで時間がなくても、休憩時間がある場合は時間を補完する
+      if(!time) {
+        if(!minutes) {
+          date = null;
+        }
+        else {
+          time = [now().getHours(), now().getMinutes()];
+        }
+      }
     }
     else {
       date = [now().getFullYear(), now().getMonth()+1, now().getDate()];
