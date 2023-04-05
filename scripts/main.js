@@ -59,7 +59,13 @@ function doPost(e) {
       var userid = String(postJSON.event.user);
       var body = String(postJSON.event.text);
       var token = new GASProperties().get('SLACK_OAUTH_TOKEN');
-      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?token=' + token + '&user=' + userid);
+      var options = {
+        method: 'get',
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      }
+      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?user=' + userid, options);
       var userdata = JSON.parse(ret);
       miyamoto.receiver.receiveMessage(userdata.user.name, body);
     }
