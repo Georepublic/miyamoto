@@ -7,6 +7,7 @@ loadSlack = function () {
     this.incomingURL = incomingURL;
     this._template = template;
     this.settings = settings;
+    this.ts = ''
   };
 
   if(typeof EventListener === 'undefined') EventListener = loadEventListener();
@@ -28,6 +29,9 @@ loadSlack = function () {
   Slack.prototype.send = function(message, options) {
     options = _.clone(options || {});
     options["text"] = message;
+    if (this.ts) {
+      options.thread_ts = this.ts
+    }
 
     var send_options = {
       method: "post",
@@ -44,6 +48,11 @@ loadSlack = function () {
   // テンプレート付きでメッセージ送信
   Slack.prototype.template = function() {
     this.send(this._template.template.apply(this._template, arguments));
+  };
+
+  // Thread用の値セット
+  Slack.prototype.setTSValue = function(ts) {
+    this.ts = ts
   };
 
   return Slack;
