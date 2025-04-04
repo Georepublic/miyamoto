@@ -19,7 +19,7 @@ loadTimesheets = function (exports) {
     this.date = DateUtils.parseDate(message);
     this.time = DateUtils.parseTime(message);
     this.minutes = DateUtils.parseMinutes(message)
-    this.datetime = DateUtils.normalizeDateTime(this.date, this.time);
+    this.datetime = DateUtils.normalizeDateTime(this.date, this.time, this.minutes);
     if (this.datetime !== null) {
       this.dateStr = DateUtils.format("Y/m/d", this.datetime);
       this.datetimeStr = DateUtils.format("Y/m/d H:M", this.datetime);
@@ -39,8 +39,10 @@ loadTimesheets = function (exports) {
     ];
 
     // メッセージを元にメソッドを探す
+    // メッセージから一時的に絵文字を削除
+    var emojiRemovedMessage = message.replace(/:[^:\s]*(?:::[^:\s]*)*:/g, '');
     var command = _.find(commands, function (ary) {
-      return (ary && message.match(ary[1]));
+      return (ary && emojiRemovedMessage.match(ary[1]));
     });
 
     // メッセージを実行

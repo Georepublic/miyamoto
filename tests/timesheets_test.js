@@ -180,17 +180,32 @@ QUnit.test( "Timesheets", function(assert) {
   });
 
   // 休憩時間(稼働中)
-  test1 = {};
+  var test1 = {};
   test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,5,0,0), signOut: '-' };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', '休憩 30分', [['休憩', 'test1', "30分"]]);
   });
 
+  // 休憩時間(稼働中、絵文字付き)
+  var test1 = {};
+  test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,5,0,0), signOut: '-' };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', '休憩 30分 (:curry:)', [['休憩', 'test1', "30分"]]);
+  });
+
   // 休憩時間(退勤後)
-  test1 = {};
+  var test1 = {};
   test1[nowDateStr()] = { user: 'test1', signIn: new Date(2014,0,2,5,0,0), signOut: new Date(2014,0,2,12,0,0) };
   storageTest({'test1': test1}, function(msgTest) {
     msgTest('test1', '休憩 30分', [['休憩', 'test1', "30分"]]);
+  });
+
+  // 休憩時間(過去日時)
+  test1 = {};
+  var pastDateStr = String(DateUtils.toDate(new Date(2013,11,3,12,0,0)))
+  test1[pastDateStr] = { user: 'test1', signIn: new Date(2013,11,3,12,0,0), signOut: '-' };
+  storageTest({'test1': test1}, function(msgTest) {
+    msgTest('test1', '休憩 30分 12/3', [['休憩', 'test1', "30分"]]);
   });
 
   // 休暇申請

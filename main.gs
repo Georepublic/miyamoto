@@ -141,11 +141,19 @@ loadDateUtils = function () {
     return null;
   };
 
-  // 日付と時間の配列から、Dateオブジェクトを生成
-  DateUtils.normalizeDateTime = function(date, time) {
+  // 日付と時間の配列から、Dateオブジェクトを生成 (休憩時間も考慮)
+  DateUtils.normalizeDateTime = function(date, time, minutes) {
     // 時間だけの場合は日付を補完する
     if(date) {
-      if(!time) date = null;
+      // 日付だけで時間がなくても、休憩時間がある場合は時間を補完する
+      if(!time) {
+        if(!minutes) {
+          date = null;
+        }
+        else {
+          time = [now().getHours(), now().getMinutes()];
+        }
+      }
     }
     else {
       date = [now().getFullYear(), now().getMonth()+1, now().getDate()];
@@ -788,7 +796,7 @@ loadGSTimesheets = function () {
         { name: 'ノート' },
       ],
       properties: [
-        { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。アカウント停止のためには「全部」と入れてください。'},
+        { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。'},
       ]
     };
   };
@@ -948,7 +956,13 @@ function doPost(e) {
       var userid = String(postJSON.event.user);
       var body = String(postJSON.event.text);
       var token = new GASProperties().get('SLACK_OAUTH_TOKEN');
-      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?token=' + token + '&user=' + userid);
+      var options = {
+        method: 'get',
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      }
+      var ret = UrlFetchApp.fetch('https://slack.com/api/users.info?user=' + userid, options);
       var userdata = JSON.parse(ret);
       miyamoto.receiver.receiveMessage(userdata.user.name, body);
     }
@@ -1064,7 +1078,7 @@ function migrate() {
   if (typeof GASProperties === 'undefined') GASProperties = loadGASProperties();
 
   var global_settings = new GASProperties();
-  global_settings.set('version', "20200223.0");
+  global_settings.set('version', "20250404.0");
   console.log("バージョンアップが完了しました。");
 }
 
@@ -1150,7 +1164,7 @@ loadTimesheets = function (exports) {
     this.date = DateUtils.parseDate(message);
     this.time = DateUtils.parseTime(message);
     this.minutes = DateUtils.parseMinutes(message)
-    this.datetime = DateUtils.normalizeDateTime(this.date, this.time);
+    this.datetime = DateUtils.normalizeDateTime(this.date, this.time, this.minutes);
     if (this.datetime !== null) {
       this.dateStr = DateUtils.format("Y/m/d", this.datetime);
       this.datetimeStr = DateUtils.format("Y/m/d H:M", this.datetime);
@@ -1170,8 +1184,10 @@ loadTimesheets = function (exports) {
     ];
 
     // メッセージを元にメソッドを探す
+    // メッセージから一時的に絵文字を削除
+    var emojiRemovedMessage = message.replace(/:[^:\s]*(?:::[^:\s]*)*:/g, '');
     var command = _.find(commands, function (ary) {
-      return (ary && message.match(ary[1]));
+      return (ary && emojiRemovedMessage.match(ary[1]));
     });
 
     // メッセージを実行
