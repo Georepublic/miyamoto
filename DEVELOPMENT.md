@@ -127,11 +127,11 @@ When you update the Google Apps Script, you have to create new version for enabl
 
 Goto https://console.cloud.google.com/ and check if your Timesheet project is already exsisting.
 If no, please create a new project.
-Then copy project ID from the dashboard.
+Then copy project number from the dashboard.
 
 ![copy project ID](docs/copy_project_id.png)
 
-Open your Timesheet script, then set the project ID to the window from manu: select Resources -> Cloud Platform Projct
+Open your Timesheet script, then set the project number to the window from menu: select Resources -> Cloud Platform Projct
 
 ![paste project ID](docs/paste_project_ID.png)
 
